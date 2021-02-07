@@ -45,8 +45,6 @@ final class SRCWRouter
 
     private function __construct()
     {
-        SRCWDependenciesResolver::includeOnce( 'vendor/webonyx/graphql-php/src/GraphQL.php' );
-
         $this->routes = include( SRCW_DIR . '/configs/api/routes.php' );
 
         if ( WP_DEBUG ) {
@@ -133,7 +131,12 @@ final class SRCWRouter
                             SRCWLog::warning( "SRCWRouter::registerRoutes: calling {$route_config['class']}::{$route_name}" );
                         }
 
-                        return $controller->$route_name( $request );
+                        $function = !empty($route_config['function']) ? $route_config['function'] : $route_name;
+
+                        return $controller->$function( $request );
+                    },
+                    'permission_callback' => function() {
+                        return true;
                     },
                 ] );
             }
